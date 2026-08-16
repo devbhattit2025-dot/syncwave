@@ -34,23 +34,13 @@ jobs:
             CODE_SIGN_STYLE=Manual \
             AD_HOC_CODE_SIGNING_ALLOWED=YES \
             VALIDATE_PRODUCT=NO \
-            ENABLE_PREVIEWS=NO > build.log 2>&1 || (cat build.log && exit 1)
-
-      - name: Upload Build Log
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: Xcodebuild-Log
-          path: build.log
-          retention-days: 7
+            ENABLE_PREVIEWS=NO \
+            COMPILER_INDEX_STORE_ENABLE=NO
 
       - name: Package IPA
         run: |
           mkdir -p Payload
-          APP_PATH=$(find ./build/Build/Products/Release-iphoneos -name "SyncWave.app" -type d | head -n 1)
-          if [ -z "$APP_PATH" ]; then
-            APP_PATH=$(find ./build/Build/Products -name "SyncWave.app" -type d | head -n 1)
-          fi
+          APP_PATH=$(find ./build -name "SyncWave.app" -type d | head -n 1)
           echo "Packaging application found at: $APP_PATH"
           cp -r "$APP_PATH" ./Payload/
           zip -r -y SyncWave.ipa Payload
