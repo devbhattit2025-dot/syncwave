@@ -68,7 +68,15 @@ jobs:
             echo "ERROR: SyncWave.app not found!"
             exit 1
           fi
+          # Copy app bundle into Payload
           cp -r "$APP_PATH" ./Payload/
+          
+          # Embed cross-platform mesh audio engine offline bundle into iOS app
+          mkdir -p Payload/SyncWave.app/app
+          cp -r app/* Payload/SyncWave.app/
+          cp -r app/* Payload/SyncWave.app/app/
+          
+          # Package IPA
           zip -r -y SyncWave.ipa Payload
           ls -lh SyncWave.ipa
 

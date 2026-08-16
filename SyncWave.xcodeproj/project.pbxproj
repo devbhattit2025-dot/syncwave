@@ -33,6 +33,7 @@
 		9C0100182C1B000100000018 /* TechnicalLimitationsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C0100182C1A000100000018 /* TechnicalLimitationsView.swift */; };
 		9C0100192C1B000100000019 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C0100192C1A000100000019 /* SettingsView.swift */; };
 		9C01001A2C1B00010000001A /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C01001A2C1A00010000001A /* MainTabView.swift */; };
+		9C01002A2C1B00010000002A /* MeshWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C01002A2C1A00010000002A /* MeshWebView.swift */; };
 		9C01001B2C1B00010000001B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9C01001B2C1A00010000001B /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
@@ -64,6 +65,7 @@
 		9C0100182C1A000100000018 /* TechnicalLimitationsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings/TechnicalLimitationsView.swift; sourceTree = "<group>"; };
 		9C0100192C1A000100000019 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings/SettingsView.swift; sourceTree = "<group>"; };
 		9C01001A2C1A00010000001A /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
+		9C01002A2C1A00010000002A /* MeshWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeshWebView.swift; sourceTree = "<group>"; };
 		9C01001B2C1A00010000001B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		9C0100202C1A000100000020 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -144,6 +146,7 @@
 		9C0100002C24000100000000 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				9C01002A2C1A00010000002A /* MeshWebView.swift */,
 				9C01001A2C1A00010000001A /* MainTabView.swift */,
 				9C0100112C1A000100000011 /* GlowingBadge.swift */,
 				9C0100122C1A000100000012 /* AudioVisualizerView.swift */,
@@ -273,6 +276,7 @@
 				9C0100182C1B000100000018 /* TechnicalLimitationsView.swift in Sources */,
 				9C0100192C1B000100000019 /* SettingsView.swift in Sources */,
 				9C01001A2C1B00010000001A /* MainTabView.swift in Sources */,
+				9C01002A2C1B00010000002A /* MeshWebView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

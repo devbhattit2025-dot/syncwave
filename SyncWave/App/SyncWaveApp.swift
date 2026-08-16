@@ -2,7 +2,7 @@
 //  SyncWaveApp.swift
 //  SyncWave
 //
-//  Created for SyncWave - Synchronized Audio for iOS (iPhone 11)
+//  Created for SyncWave - Cross-Platform Synchronized Audio Mesh (iOS & Android)
 //
 
 import SwiftUI
@@ -14,12 +14,23 @@ struct SyncWaveApp: App {
     
     var body: some Scene {
         WindowGroup {
-            MainTabView()
-                .preferredColorScheme(.dark)
-                .onAppear {
-                    // Lock global audio session for background playback
-                    _ = AudioSessionManager.shared.configurePlaybackSession()
+            ZStack {
+                Color(red: 10/255, green: 15/255, blue: 30/255)
+                    .ignoresSafeArea()
+                
+                MeshWebView()
+                    .ignoresSafeArea()
+            }
+            .preferredColorScheme(.dark)
+            .onAppear {
+                do {
+                    let session = AVAudioSession.sharedInstance()
+                    try session.setCategory(.playback, mode: .default, options: [.mixWithOthers, .allowBluetooth, .allowBluetoothA2DP, .allowAirPlay])
+                    try session.setActive(true)
+                } catch {
+                    print("Error setting audio session: \(error)")
                 }
+            }
         }
     }
 }
@@ -29,7 +40,6 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
-        // Configure remote control events
         application.beginReceivingRemoteControlEvents()
         return true
     }
