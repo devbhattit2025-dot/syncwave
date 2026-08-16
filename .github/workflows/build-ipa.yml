@@ -1,0 +1,41 @@
+name: Build SyncWave IPA
+
+on:
+  push:
+    branches: [ "**" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build iOS IPA
+    runs-on: macos-14
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Xcode
+        run: sudo xcode-select -switch /Applications/Xcode_15.4.app
+
+      - name: Build Unsigned App
+        run: |
+          xcodebuild -project SyncWave.xcodeproj \
+                     -scheme SyncWave \
+                     -sdk iphoneos \
+                     -configuration Release \
+                     -derivedDataPath build \
+                     CODE_SIGNING_ALLOWED=NO \
+                     CODE_SIGN_IDENTITY="" \
+                     CODE_SIGNING_REQUIRED=NO
+
+      - name: Package App into IPA
+        run: |
+          mkdir -p Payload
+          cp -r build/Build/Products/Release-iphoneos/SyncWave.app Payload/
+          zip -r SyncWave.ipa Payload
+
+      - name: Upload IPA Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SyncWave-IPA
+          path: SyncWave.ipa
+          retention-days: 14
