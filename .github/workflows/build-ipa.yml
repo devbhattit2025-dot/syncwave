@@ -1,4 +1,3 @@
-# Trigger build: v1.0.1
 name: Build SyncWave IPA
 
 on:
@@ -14,14 +13,16 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Show Xcode Version & Schemes
+      - name: Show Xcode Version & Available SDKs
         run: |
           xcodebuild -version
+          xcodebuild -showsdks
           xcodebuild -list -project SyncWave.xcodeproj
 
-      - name: Build Ad-Hoc App
+      - name: Build iOS Application
         run: |
-          xcodebuild build \
+          set -e
+          xcodebuild clean build \
             -project SyncWave.xcodeproj \
             -scheme SyncWave \
             -configuration Release \
@@ -33,16 +34,17 @@ jobs:
             CODE_SIGNING_ALLOWED=YES \
             CODE_SIGN_STYLE=Manual \
             AD_HOC_CODE_SIGNING_ALLOWED=YES \
-            DEVELOPMENT_TEAM="" \
-            PROVISIONING_PROFILE_SPECIFIER="" \
-            SWIFT_TREAT_WARNINGS_AS_ERRORS=NO \
-            GCC_TREAT_WARNINGS_AS_ERRORS=NO
+            VALIDATE_PRODUCT=NO \
+            ENABLE_PREVIEWS=NO
 
-      - name: Package App into IPA
+      - name: Package IPA
         run: |
           mkdir -p Payload
-          cp -r ./build/Build/Products/Release-iphoneos/SyncWave.app ./Payload/
+          APP_PATH=$(find ./build/Build/Products -name "SyncWave.app" -type d | head -n 1)
+          echo "Found app at: $APP_PATH"
+          cp -r "$APP_PATH" ./Payload/
           zip -r -y SyncWave.ipa Payload
+          ls -la SyncWave.ipa
 
       - name: Upload IPA Artifact
         uses: actions/upload-artifact@v4
