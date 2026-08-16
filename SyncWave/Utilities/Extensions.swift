@@ -65,7 +65,7 @@ extension AVAudioSessionPortDescription {
             return "cable.connector"
         case .carAudio:
             return "car.fill"
-        case .lineOut, .hdmi:
+        case .lineOut, .HDMI:
             return "tv.fill"
         default:
             return "speaker.fill"
@@ -92,7 +92,7 @@ extension AVAudioSessionPortDescription {
             return "USB Audio Interface / DAC"
         case .carAudio:
             return "CarPlay Audio"
-        case .hdmi:
+        case .HDMI:
             return "HDMI Output"
         case .lineOut:
             return "Line Out"

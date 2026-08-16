@@ -48,7 +48,7 @@ struct AudioDevice: Identifiable, Hashable {
         self.isBluetooth = btPorts.contains(port.portType)
         
         // MultiRoute on iOS only supports USB / HDMI / Wired lineout combinations, not multiple Bluetooth A2DP
-        let multiRoutePhysicalPorts: [AVAudioSession.Port] = [.headphones, .usbAudio, .hdmi, .lineOut]
+        let multiRoutePhysicalPorts: [AVAudioSession.Port] = [.headphones, .usbAudio, .HDMI, .lineOut]
         self.supportsMultiRoute = multiRoutePhysicalPorts.contains(port.portType)
     }
     

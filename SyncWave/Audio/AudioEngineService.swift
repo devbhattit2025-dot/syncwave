@@ -62,8 +62,6 @@ final class AudioEngineService: ObservableObject {
         delayNode.lowPassCutoff = 15000
         delayNode.wetDryMix = 100 // full wet for pure delay compensation
         
-        let format = engine.outputNode.outputFormat(forBus: 0)
-        
         // Connect player -> timePitch -> delay -> eq -> mainMixer
         engine.connect(playerNode, to: timePitchNode, format: nil)
         engine.connect(timePitchNode, to: delayNode, format: nil)
@@ -101,7 +99,7 @@ final class AudioEngineService: ObservableObject {
         }
     }
     
-    // MARK: - Playback Control
+    // MARK: - Audio Loading & Playback
     
     /// Loads an audio file from a local URL
     func loadFile(url: URL) -> Bool {
@@ -111,7 +109,8 @@ final class AudioEngineService: ObservableObject {
             let file = try AVAudioFile(forReading: url)
             self.audioFile = file
             self.audioSampleRate = file.processingFormat.sampleRate
-            self.totalFrames = file.length
+            self.audioChannelCount = file.processingFormat.channelCount
+            self.audioLengthSamples = file.length
             self.duration = Double(file.length) / file.processingFormat.sampleRate
             self.currentTime = 0
             self.seekFrameOffset = 0
@@ -124,7 +123,7 @@ final class AudioEngineService: ObservableObject {
     }
     
     func play() {
-        guard let file = audioFile else { return }
+        guard audioFile != nil else { return }
         
         if !engine.isRunning {
             do {
@@ -164,7 +163,7 @@ final class AudioEngineService: ObservableObject {
     }
     
     func seek(to time: TimeInterval) {
-        guard let file = audioFile else { return }
+        guard audioFile != nil else { return }
         let clampedTime = max(0, min(time, duration))
         let targetFrame = AVAudioFramePosition(clampedTime * audioSampleRate)
         

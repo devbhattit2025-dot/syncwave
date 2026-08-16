@@ -98,8 +98,6 @@ final class AudioFileGenerator {
         let beatDuration = 60.0 / bpm
         let chordDuration = beatDuration * 4.0
         
-        var phaseL: Double = 0
-        var phaseR: Double = 0
         var bassPhase: Double = 0
         var leadPhase: Double = 0
         

@@ -16,7 +16,7 @@ final class AudioSessionManager: ObservableObject {
     private let session = AVAudioSession.sharedInstance()
     private var cancellables = Set<AnyCancellable>()
     
-    var onRouteChanged: ((AVAudioSessionRouteChangeReason, AVAudioSessionRouteDescription) -> Void)?
+    var onRouteChanged: ((AVAudioSession.RouteChangeReason, AVAudioSessionRouteDescription) -> Void)?
     var onInterruption: ((AVAudioSession.InterruptionType) -> Void)?
     
     @Published private(set) var isMultiRouteActive: Bool = false

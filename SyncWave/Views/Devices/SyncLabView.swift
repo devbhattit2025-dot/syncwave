@@ -194,7 +194,7 @@ struct SyncLabView: View {
                 
                 Text(audioManager.sessionManager.isMultiRouteActive ? "ACTIVE" : "STANDBY")
                     .font(.system(size: 10, weight: .bold))
-                    .foregroundColor(audioManager.sessionManager.isMultiRouteActive ? Theme.accentGreen : Theme.accentTertiary)
+                    .foregroundColor(audioManager.sessionManager.isMultiRouteActive ? Theme.accentGreen : Theme.textTertiary)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
                     .background(Capsule().fill(Color.white.opacity(0.08)))

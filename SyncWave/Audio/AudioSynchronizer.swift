@@ -71,7 +71,7 @@ final class AudioSynchronizer: ObservableObject {
         isMetronomeActive = true
         HapticManager.mediumImpact()
         
-        metronomeTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
+        metronomeTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { _ in
             AudioServicesPlaySystemSound(1057) // Tock click sound
             HapticManager.lightImpact()
         }
