@@ -34,7 +34,15 @@ jobs:
             CODE_SIGN_STYLE=Manual \
             AD_HOC_CODE_SIGNING_ALLOWED=YES \
             VALIDATE_PRODUCT=NO \
-            ENABLE_PREVIEWS=NO
+            ENABLE_PREVIEWS=NO > build.log 2>&1 || (cat build.log && exit 1)
+
+      - name: Upload Build Log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Xcodebuild-Log
+          path: build.log
+          retention-days: 7
 
       - name: Package IPA
         run: |
