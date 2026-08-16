@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>SyncWave Mesh - Multi-Phone Synchronized Audio Booster</title>
+  <meta name="description" content="Free multi-phone synchronized audio player. Turn all phones in the room into a wireless surround sound booster with zero latency.">
+  <meta name="theme-color" content="#0d0f18">
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="css/style.css">
+  <!-- Google Fonts for modern typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <!-- QR Code library for instant room sharing -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <!-- PeerJS for WebRTC mesh networking -->
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+</head>
+<body>
+  <div class="background-glow glow-1"></div>
+  <div class="background-glow glow-2"></div>
+
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2v20M17 5v14M7 8v8M22 10v4M2 11v2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1>SyncWave <span class="badge-mesh">MESH</span></h1>
+          <p class="subtitle">Multi-Phone Sound Booster</p>
+        </div>
+      </div>
+
+      <div class="header-status">
+        <div id="connectionPill" class="status-pill status-disconnected">
+          <span class="pulse-dot"></span>
+          <span id="connectionText">STANDALONE</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      
+      <!-- Room Connection Card -->
+      <section class="card room-card" id="roomSection">
+        <div class="room-modes" id="roomModeSelector">
+          <button id="btnModeHost" class="tab-btn active">👑 Host Party Room</button>
+          <button id="btnModeJoin" class="tab-btn">⚡ Join Room</button>
+        </div>
+
+        <!-- Host View -->
+        <div id="hostPanel" class="room-panel">
+          <div class="room-info-row">
+            <div>
+              <div class="label-tiny">ROOM CODE</div>
+              <div class="room-code-display" id="displayRoomCode">----</div>
+            </div>
+            <button id="btnCreateRoom" class="btn-primary">Start New Room</button>
+          </div>
+          
+          <div id="qrCodeContainer" class="qr-box hidden">
+            <div id="qrcode"></div>
+            <p class="qr-hint">Scan with camera on any Android or iPhone to sync instantly!</p>
+          </div>
+
+          <div class="connected-peers-box" id="peersContainer">
+            <div class="label-tiny">CONNECTED PHONES IN ROOM (<span id="peerCount">0</span>)</div>
+            <div id="peersList" class="peers-list">
+              <div class="peer-item host-peer">
+                <span class="peer-icon">👑</span>
+                <span class="peer-name">Host Phone (This Device)</span>
+                <span class="peer-badge">MASTER CLOCK</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Join View -->
+        <div id="joinPanel" class="room-panel hidden">
+          <div class="join-input-group">
+            <input type="text" id="inputRoomCode" placeholder="Enter 4-Digit Room Code" maxlength="8" autocomplete="off" autocorrect="off" autocapitalize="characters">
+            <button id="btnJoinRoom" class="btn-primary">Join & Sync</button>
+          </div>
+          <p class="join-tip">💡 Tip: Make sure all phones are connected to the same Wi-Fi or Mobile Hotspot for sub-millisecond sync.</p>
+        </div>
+      </section>
+
+      <!-- Visualizer & Player Card -->
+      <section class="card player-card">
+        <!-- Visualizer Canvas -->
+        <div class="visualizer-container">
+          <canvas id="visualizerCanvas" width="640" height="220"></canvas>
+          <div class="visualizer-overlay">
+            <div class="sync-clock-badge">
+              <span class="clock-label">SYNC JITTER:</span>
+              <span id="syncJitterDisplay" class="clock-val">±0.4 ms</span>
+            </div>
+            <div class="track-title-badge" id="currentTrackTitle">Synthwave - Neon Horizon</div>
+          </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="progress-section">
+          <div class="time-display">
+            <span id="currentTime">0:00</span>
+            <span id="duration">3:45</span>
+          </div>
+          <div class="progress-bar-bg" id="progressBar">
+            <div class="progress-bar-fill" id="progressFill"></div>
+          </div>
+        </div>
+
+        <!-- Playback Controls -->
+        <div class="playback-controls">
+          <button id="btnPrevTrack" class="btn-control" title="Previous Track">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+          </button>
+          <button id="btnPlayPause" class="btn-play" title="Play / Pause Sync">
+            <svg id="playIcon" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+            <svg id="pauseIcon" class="hidden" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+          </button>
+          <button id="btnNextTrack" class="btn-control" title="Next Track">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+          </button>
+        </div>
+
+        <!-- Music Source Selector -->
+        <div class="music-source-box">
+          <div class="source-header">
+            <span class="label-tiny">MUSIC ENGINE</span>
+            <label class="btn-upload" for="fileInput">
+              📁 Load Song File
+              <input type="file" id="fileInput" accept="audio/*" class="hidden">
+            </label>
+          </div>
+          <div class="track-pills">
+            <button class="track-pill active" data-track="0">🌆 Neon Horizon (Synth)</button>
+            <button class="track-pill" data-track="1">🌅 Chill Sunset (Ambient)</button>
+            <button class="track-pill" data-track="2">⚡ Techno Pulse (128 BPM)</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Speaker Channel Assignment & Room Booster -->
+      <section class="card booster-card">
+        <div class="card-header-row">
+          <div class="card-title-group">
+            <h3>🔊 Room Speaker Role</h3>
+            <p class="card-desc">Assign this phone's acoustic role to maximize room sound</p>
+          </div>
+          <div class="boost-meter">
+            <span class="label-tiny">ESTIMATED BOOST</span>
+            <span id="boostMultiplier" class="boost-val">+6 dB (2x)</span>
+          </div>
+        </div>
+
+        <div class="channel-grid">
+          <button class="channel-btn active" data-channel="boost">
+            <div class="ch-icon">🚀</div>
+            <div class="ch-title">Max Sound Booster</div>
+            <div class="ch-desc">Full spectrum in-phase. Maximum volume boost across the room.</div>
+          </button>
+
+          <button class="channel-btn" data-channel="left">
+            <div class="ch-icon">◀️</div>
+            <div class="ch-title">Left Speaker</div>
+            <div class="ch-desc">Hard Left channel. Place on the left side of the room.</div>
+          </button>
+
+          <button class="channel-btn" data-channel="right">
+            <div class="ch-icon">▶️</div>
+            <div class="ch-title">Right Speaker</div>
+            <div class="ch-desc">Hard Right channel. Place on the right side of the room.</div>
+          </button>
+
+          <button class="channel-btn" data-channel="sub">
+            <div class="ch-icon">📻</div>
+            <div class="ch-title">Subwoofer Box</div>
+            <div class="ch-desc">Low-pass bass boost. Place phone flat on a wooden table or box.</div>
+          </button>
+
+          <button class="channel-btn" data-channel="vocal">
+            <div class="ch-icon">🎤</div>
+            <div class="ch-title">Vocal & Treble Clarity</div>
+            <div class="ch-desc">High-pass mid boost for ultra crisp lyrics & cymbals.</div>
+          </button>
+        </div>
+
+        <!-- Latency Fine-Tuning Slider -->
+        <div class="latency-trim-section">
+          <div class="trim-header">
+            <span class="label-tiny">SPEAKER HARDWARE OFFSET TRIMMER</span>
+            <span id="trimValueDisplay" class="trim-val">0 ms</span>
+          </div>
+          <div class="slider-row">
+            <span class="trim-edge">-100ms</span>
+            <input type="range" id="latencySlider" min="-100" max="100" value="0" step="1" class="trim-slider">
+            <span class="trim-edge">+100ms</span>
+          </div>
+          <p class="trim-hint">Adjust by a few milliseconds if one phone has a slightly faster or slower speaker DAC.</p>
+        </div>
+
+        <!-- Sync Test Click Track Button -->
+        <div class="sync-test-row">
+          <button id="btnSyncMetronome" class="btn-secondary">
+            ⏱️ Play Sync Calibration Pulse
+          </button>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <p>SyncWave Mesh v2.0 • Zero Subscriptions • Cross-Platform iOS & Android</p>
+    </footer>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/ntp-engine.js"></script>
+  <script src="js/synth-engine.js"></script>
+  <script src="js/audio-mesh.js"></script>
+  <script src="js/visualizer.js"></script>
+  <script src="js/mesh-network.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
