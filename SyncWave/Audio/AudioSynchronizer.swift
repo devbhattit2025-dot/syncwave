@@ -7,6 +7,7 @@
 
 import Foundation
 import AVFoundation
+import AudioToolbox
 import Combine
 
 /// Manages precision clock alignment, latency estimation, and delay compensation calibration.
