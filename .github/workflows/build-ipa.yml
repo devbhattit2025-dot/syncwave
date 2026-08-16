@@ -13,25 +13,30 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Set up Xcode
-        run: sudo xcode-select -switch /Applications/Xcode_15.4.app
+      - name: Show Xcode Version
+        run: |
+          xcodebuild -version
+          xcodebuild -list -project SyncWave.xcodeproj
 
       - name: Build Unsigned App
         run: |
-          xcodebuild -project SyncWave.xcodeproj \
-                     -scheme SyncWave \
-                     -sdk iphoneos \
-                     -configuration Release \
-                     -derivedDataPath build \
-                     CODE_SIGNING_ALLOWED=NO \
-                     CODE_SIGN_IDENTITY="" \
-                     CODE_SIGNING_REQUIRED=NO
+          xcodebuild build \
+            -project SyncWave.xcodeproj \
+            -scheme SyncWave \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath ./build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            AD_HOC_CODE_SIGNING_ALLOWED=YES
 
-      - name: Package App into IPA
+      - name: Package IPA
         run: |
           mkdir -p Payload
-          cp -r build/Build/Products/Release-iphoneos/SyncWave.app Payload/
-          zip -r SyncWave.ipa Payload
+          cp -r ./build/Build/Products/Release-iphoneos/SyncWave.app ./Payload/
+          zip -r -y SyncWave.ipa Payload
 
       - name: Upload IPA Artifact
         uses: actions/upload-artifact@v4
