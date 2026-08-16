@@ -69,24 +69,32 @@ final class FFTCalculator {
         // 2. Separate into real/imaginary parts
         windowedSamples.withUnsafeBufferPointer { ptr in
             ptr.baseAddress!.withMemoryRebound(to: DSPComplex.self, capacity: fftSize / 2) { complexPtr in
-                var splitComplex = DSPSplitComplex(
-                    realp: &realBuffer,
-                    imagp: &imagBuffer
-                )
-                vDSP_ctoz(complexPtr, 2, &splitComplex, 1, vDSP_Length(fftSize / 2))
+                realBuffer.withUnsafeMutableBufferPointer { realPtr in
+                    imagBuffer.withUnsafeMutableBufferPointer { imagPtr in
+                        var splitComplex = DSPSplitComplex(
+                            realp: realPtr.baseAddress!,
+                            imagp: imagPtr.baseAddress!
+                        )
+                        vDSP_ctoz(complexPtr, 2, &splitComplex, 1, vDSP_Length(fftSize / 2))
+                    }
+                }
             }
         }
         
         // 3. Execute DFT
         if let setup = fftSetup {
-            var splitComplex = DSPSplitComplex(
-                realp: &realBuffer,
-                imagp: &imagBuffer
-            )
-            vDSP_DFT_Execute(setup, splitComplex.realp, splitComplex.imagp, splitComplex.realp, splitComplex.imagp)
-            
-            // 4. Calculate magnitudes
-            vDSP_zvmags(&splitComplex, 1, &magnitudes, 1, vDSP_Length(fftSize / 2))
+            realBuffer.withUnsafeMutableBufferPointer { realPtr in
+                imagBuffer.withUnsafeMutableBufferPointer { imagPtr in
+                    var splitComplex = DSPSplitComplex(
+                        realp: realPtr.baseAddress!,
+                        imagp: imagPtr.baseAddress!
+                    )
+                    vDSP_DFT_Execute(setup, splitComplex.realp, splitComplex.imagp, splitComplex.realp, splitComplex.imagp)
+                    
+                    // 4. Calculate magnitudes
+                    vDSP_zvmags(&splitComplex, 1, &magnitudes, 1, vDSP_Length(fftSize / 2))
+                }
+            }
         }
         
         // 5. Convert to Logarithmic Scale & Bin into Frequency Bands

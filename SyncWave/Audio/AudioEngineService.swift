@@ -109,8 +109,7 @@ final class AudioEngineService: ObservableObject {
             let file = try AVAudioFile(forReading: url)
             self.audioFile = file
             self.audioSampleRate = file.processingFormat.sampleRate
-            self.audioChannelCount = file.processingFormat.channelCount
-            self.audioLengthSamples = file.length
+            self.totalFrames = file.length
             self.duration = Double(file.length) / file.processingFormat.sampleRate
             self.currentTime = 0
             self.seekFrameOffset = 0
