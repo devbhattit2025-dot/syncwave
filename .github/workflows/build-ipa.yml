@@ -1,3 +1,4 @@
+# Trigger build: v1.0.1
 name: Build SyncWave IPA
 
 on:
