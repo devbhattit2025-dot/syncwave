@@ -78,3 +78,27 @@ jobs:
           name: SyncWave-IPA
           path: SyncWave.ipa
           retention-days: 14
+
+      - name: Create or Update GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: github.ref == 'refs/heads/main'
+        with:
+          tag_name: v1.0.0
+          name: "SyncWave v1.0.0 (Latest IPA)"
+          body: |
+            ## SyncWave iOS Application
+            
+            Compiled unsigned `.ipa` ready for sideloading on iPhone (iOS 15.0+ / iPhone 11).
+            
+            ### Sideloading Instructions (Windows):
+            1. Download `SyncWave.ipa` from the Assets below.
+            2. Connect your iPhone to your Windows PC via USB.
+            3. Open **Sideloadly**.
+            4. Drag and drop `SyncWave.ipa` into Sideloadly.
+            5. Enter your Apple ID email and click **Start**.
+            6. On iPhone: Go to **Settings > General > VPN & Device Management** and tap **Trust**.
+            7. Launch **SyncWave**!
+          files: |
+            SyncWave.ipa
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
