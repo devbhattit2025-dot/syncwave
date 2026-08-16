@@ -5,6 +5,9 @@ on:
     branches: [ "**" ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     name: Build iOS IPA
@@ -21,6 +24,7 @@ jobs:
 
       - name: Build iOS Application
         run: |
+          set -o pipefail
           xcodebuild clean build \
             -project SyncWave.xcodeproj \
             -scheme SyncWave \
@@ -28,9 +32,10 @@ jobs:
             -sdk iphoneos \
             -destination 'generic/platform=iOS' \
             -derivedDataPath ./build \
-            CODE_SIGN_IDENTITY="-" \
+            CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=YES \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGN_ENTITLEMENTS="" \
             CODE_SIGN_STYLE=Manual \
             AD_HOC_CODE_SIGNING_ALLOWED=YES \
             VALIDATE_PRODUCT=NO \
@@ -41,7 +46,11 @@ jobs:
         run: |
           mkdir -p Payload
           APP_PATH=$(find ./build -name "SyncWave.app" -type d | head -n 1)
-          echo "Packaging application found at: $APP_PATH"
+          echo "Found app bundle at: $APP_PATH"
+          if [ -z "$APP_PATH" ]; then
+            echo "ERROR: SyncWave.app not found!"
+            exit 1
+          fi
           cp -r "$APP_PATH" ./Payload/
           zip -r -y SyncWave.ipa Payload
           ls -lh SyncWave.ipa
