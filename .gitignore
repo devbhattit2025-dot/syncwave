@@ -9,6 +9,13 @@ DerivedData/
 *.ipa
 Payload/
 
+## Android
+.gradle/
+**/build/
+*.apk
+*.aab
+local.properties
+
 ## macOS
 .DS_Store
 .AppleDouble
