@@ -97,14 +97,29 @@ jobs:
         with:
           gradle-version: '8.2'
 
-      - name: Build Android Release APK
+      - name: Build Android APK
         working-directory: ./android
-        run: gradle assembleRelease --no-daemon --stacktrace
+        run: |
+          set +e
+          gradle assembleDebug --no-daemon --stacktrace > android_build_log.txt 2>&1
+          CODE=$?
+          echo "Gradle exit code: $CODE"
+          cat android_build_log.txt
+          if [ $CODE -ne 0 ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git checkout -B build-logs
+            cp android_build_log.txt failure_log_android.txt
+            git add failure_log_android.txt
+            git commit -m "Upload Android failure log [skip ci]"
+            git push -f origin build-logs
+            exit 1
+          fi
 
       - name: Copy & Rename APK
         run: |
           mkdir -p dist
-          find android/app/build/outputs/apk -name "*.apk" -exec cp {} SyncWave-Android.apk \;
+          find android/app/build/outputs/apk -name "*.apk" | head -n 1 | xargs -I {} cp {} SyncWave-Android.apk
           ls -lh SyncWave-Android.apk
 
       - name: Upload Android APK Artifact
