@@ -15,6 +15,9 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
 
       - name: Show Xcode Version & Available SDKs
         run: |
@@ -24,7 +27,7 @@ jobs:
 
       - name: Build iOS Application
         run: |
-          set -o pipefail
+          set +e
           xcodebuild clean build \
             -project SyncWave.xcodeproj \
             -scheme SyncWave \
@@ -40,7 +43,21 @@ jobs:
             AD_HOC_CODE_SIGNING_ALLOWED=YES \
             VALIDATE_PRODUCT=NO \
             ENABLE_PREVIEWS=NO \
-            COMPILER_INDEX_STORE_ENABLE=NO
+            COMPILER_INDEX_STORE_ENABLE=NO > build_log.txt 2>&1
+          BUILD_CODE=$?
+          echo "Build finished with exit code: $BUILD_CODE"
+          
+          if [ $BUILD_CODE -ne 0 ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git checkout -B build-logs
+            cp build_log.txt failure_log.txt
+            git add failure_log.txt
+            git commit -m "Upload failure log [skip ci]"
+            git push -f origin build-logs
+            echo "::error::Xcode build failed! Log pushed to build-logs branch"
+            exit 1
+          fi
 
       - name: Package IPA
         run: |
